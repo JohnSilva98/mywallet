@@ -59,7 +59,7 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl">Carregando...</p>
+        <p className="text-xl">Carregando..</p>
       </div>
     );
   }
