@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import FormGasto from "@/components/formGasto";
 import ListaGastos from "@/components/listaGasto";
+import GraficoCategoria from "@/components/graficoCategorias";
 
 export default function Home() {
   const [gastos, setGastos] = useState([]);
@@ -92,6 +93,8 @@ export default function Home() {
               onCancelar={handleCancelar}
             />
           )}
+
+          <GraficoCategoria gastos={gastos} />
 
           <ListaGastos
             gastos={gastos}
