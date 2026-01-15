@@ -13,11 +13,11 @@ export default function ListaGastos({ gastos, onEditar, onDeletar }) {
   };
 
   const calcularTotal = () => {
-    // ✅ Proteção contra undefined/null/vazio
     if (!gastos || !Array.isArray(gastos) || gastos.length === 0) {
       return 0;
     }
-    return gastos.reduce((total, gasto) => total + gasto.valor, 0);
+    // ✅ Number() ou parseFloat() converte string → número
+    return gastos.reduce((total, gasto) => total + Number(gasto.valor), 0);
   };
   if (gastos.length === 0) {
     return (
