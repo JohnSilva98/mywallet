@@ -9,7 +9,7 @@ datasource db {
 model Gasto {
   id        String   @id @default(cuid())
   nome      String
-  valor     Float
+  valor     Decimal
   categoria String
   data      DateTime
   createdAt DateTime @default(now())

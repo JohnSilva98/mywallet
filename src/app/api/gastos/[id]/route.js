@@ -6,8 +6,10 @@ const prisma = new PrismaClient();
 // GET - Buscar um gasto específico
 export async function GET(request, { params }) {
   try {
+    const { id } = await params; // ← Adiciona await aqui
+
     const gasto = await prisma.gasto.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!gasto) {
@@ -29,11 +31,12 @@ export async function GET(request, { params }) {
 // PUT - Atualizar um gasto
 export async function PUT(request, { params }) {
   try {
+    const { id } = await params; // ← Adiciona await aqui
     const body = await request.json();
     const { nome, valor, categoria, data } = body;
 
     const gasto = await prisma.gasto.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         nome,
         valor: parseFloat(valor),
@@ -54,8 +57,10 @@ export async function PUT(request, { params }) {
 // DELETE - Deletar um gasto
 export async function DELETE(request, { params }) {
   try {
+    const { id } = await params; // ← Adiciona await aqui
+
     await prisma.gasto.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Gasto deletado com sucesso" });
