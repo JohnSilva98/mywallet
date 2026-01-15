@@ -107,6 +107,9 @@ export default function FormGasto({
           <option value="Lazer">Lazer</option>
           <option value="Saúde">Saúde</option>
           <option value="Educação">Educação</option>
+          <option value="Casa">Casa</option>
+          <option value="Hobbies">Hobbies</option>
+          <option value="Cultura">Cultura</option>
           <option value="Outros">Outros</option>
         </select>
       </div>
