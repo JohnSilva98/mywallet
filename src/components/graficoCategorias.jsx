@@ -9,10 +9,30 @@ import {
 } from "recharts";
 
 export default function GraficoCategoria({ gastos }) {
+  // Filtrar apenas despesas
+  const despesas = gastos.filter(gasto => gasto.tipo === 'despesa');
+  
+  // Cores para cada categoria
+  const CORES = {
+    alimentação: "#FF6384",
+    transporte: "#36A2EB",
+    lazer: "#d69c0aff",
+    saúde: "#4BC0C0",
+    educação: "#9966FF",
+    outros: "#FF9F40",
+    compras: "#bab405ff",
+    moradia: "#10b410f9",
+    salario: "#0000ffff",
+    freelance: "#ff0000ff",
+    investimentos: "#00ffffff",
+    vendas: "#ff00ffff",
+  };
+  
   // Agrupar gastos por categoria e somar valores
   console.log('gastos:', gastos, typeof gastos, Array.isArray(gastos));
+  console.log('despesas filtradas:', despesas);
   
-  const dadosPorCategoria = gastos.reduce((acc, gasto) => {
+  const dadosPorCategoria = despesas.reduce((acc, gasto) => {
     const categoria = gasto.categoria;
     const valor = Number(gasto.valor);
 
@@ -31,18 +51,11 @@ export default function GraficoCategoria({ gastos }) {
     value,
   }));
 
+  console.log('categorias encontradas:', Object.keys(dadosPorCategoria));
+  console.log('CORES disponíveis:', Object.keys(CORES));
+
   // Calcular total para porcentagens
   const total = dados.reduce((sum, item) => sum + item.value, 0);
-
-  // Cores para cada categoria
-  const CORES = {
-    Alimentação: "#FF6384",
-    Transporte: "#36A2EB",
-    Lazer: "#FFCE56",
-    Saúde: "#4BC0C0",
-    Educação: "#9966FF",
-    Outros: "#FF9F40",
-  };
 
   // Tooltip customizado
   const CustomTooltip = ({ active, payload }) => {
@@ -70,10 +83,10 @@ export default function GraficoCategoria({ gastos }) {
     return `${porcentagem}%`;
   };
 
-  if (gastos.length === 0) {
+  if (despesas.length === 0) {
     return (
       <div className="bg-white p-6 rounded-lg shadow-md text-center text-gray-500">
-        Adicione gastos para ver o gráfico
+        Adicione despesas para ver o gráfico
       </div>
     );
   }
@@ -96,9 +109,13 @@ export default function GraficoCategoria({ gastos }) {
             fill="#8884d8"
             dataKey="value"
           >
-            {dados.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={CORES[entry.name] || "#999"} />
-            ))}
+            {dados.map((entry, index) => {
+              const cor = CORES[entry.name] || "#999";
+              console.log(`Categoria: ${entry.name}, Cor: ${cor}`);
+              return (
+                <Cell key={`cell-${index}`} fill={cor} />
+              );
+            })}
           </Pie>
           <Tooltip content={<CustomTooltip />} />
           <Legend />

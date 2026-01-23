@@ -8,11 +8,12 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 
 
 export default function Home() {
-  const [saldo, setSaldo] = useState(0);
+  
   const [gastos, setGastos] = useState([]);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [gastoParaEditar, setGastoParaEditar] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [periodoGrafico, setPeriodoGrafico] = useState('6meses');
 
 
   const totalReceitas = gastos
@@ -27,38 +28,64 @@ const saldoAtual = totalReceitas - totalDespesas;
 
   
 
-  // Dados de exemplo
-  const monthlyData = [
-    { mes: 'Jul', receitas: 4500, despesas: 3200 },
-    { mes: 'Ago', receitas: 5200, despesas: 3800 },
-    { mes: 'Set', receitas: 4800, despesas: 3500 },
-    { mes: 'Out', receitas: 4000, despesas: 4200 },
-    { mes: 'Nov', receitas: 6000, despesas: 4500 },
-    { mes: 'Dez', receitas: 5800, despesas: 4100 },
-  ];
-
-  const categoryData = [
-    { name: 'Alimentação', value: 1200, color: '#3b82f6' },
-    { name: 'Transporte', value: 800, color: '#8b5cf6' },
-    { name: 'Moradia', value: 1500, color: '#ec4899' },
-    { name: 'Lazer', value: 600, color: '#f59e0b' },
-    { name: 'Outros', value: 500, color: '#10b981' },
-  ];
-
-  const recentTransactions = [
-    { id: 1, description: 'Salário', amount: 5800, type: 'receita', date: '22/01/2026', category: 'Salário' },
-    { id: 2, description: 'Supermercado', amount: -320, type: 'despesa', date: '21/01/2026', category: 'Alimentação' },
-    { id: 3, description: 'Netflix', amount: -45, type: 'despesa', date: '20/01/2026', category: 'Lazer' },
-    { id: 4, description: 'Freelance', amount: 1200, type: 'receita', date: '19/01/2026', category: 'Extra' },
-    { id: 5, description: 'Gasolina', amount: -180, type: 'despesa', date: '18/01/2026', category: 'Transporte' },
-  ];
-
-  const stats = {
-    balance: 8450.50,
-    income: 5800,
-    expenses: 4100,
-    savings: 1700
+  // Função para processar dados do gráfico por período
+  const processarDadosGrafico = () => {
+    const agora = new Date();
+    let dataInicio;
+    
+    switch(periodoGrafico) {
+      case '6meses':
+        dataInicio = new Date(agora.getFullYear(), agora.getMonth() - 6, 1);
+        break;
+      case '12meses':
+        dataInicio = new Date(agora.getFullYear() - 1, agora.getMonth(), 1);
+        break;
+      case 'ano':
+        dataInicio = new Date(agora.getFullYear(), 0, 1);
+        break;
+      default:
+        dataInicio = new Date(agora.getFullYear(), agora.getMonth() - 6, 1);
+    }
+    
+    // Filtrar gastos por período
+    const gastosFiltrados = gastos.filter(gasto => 
+      new Date(gasto.data) >= dataInicio
+    );
+    
+    // Agrupar por mês
+    const dadosPorMes = {};
+    
+    gastosFiltrados.forEach(gasto => {
+      const data = new Date(gasto.data);
+      const mesAno = `${data.getMonth() + 1}/${data.getFullYear()}`;
+      const nomeMes = data.toLocaleDateString('pt-BR', { month: 'short' });
+      
+      if (!dadosPorMes[mesAno]) {
+        dadosPorMes[mesAno] = {
+          mes: nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1),
+          receitas: 0,
+          despesas: 0
+        };
+      }
+      
+      if (gasto.tipo === 'receita') {
+        dadosPorMes[mesAno].receitas += Number(gasto.valor);
+      } else {
+        dadosPorMes[mesAno].despesas += Number(gasto.valor);
+      }
+    });
+    
+    // Ordenar por data e converter para array
+    return Object.values(dadosPorMes)
+      .sort((a, b) => {
+        const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        return meses.indexOf(a.mes) - meses.indexOf(b.mes);
+      })
+      .slice(-6); // Últimos 6 meses para visualização
   };
+  
+  const monthlyData = processarDadosGrafico();
+
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -83,12 +110,12 @@ const saldoAtual = totalReceitas - totalDespesas;
 
   useEffect(() => {
     buscarGastos();
-    setSaldo(saldoAtual);
+    
   }, []);
 
   const handleGastoAdicionado = () => {
     buscarGastos();
-    setSaldo(saldoAtual);
+    
     setMostrarForm(false);
     setGastoParaEditar(null);
   };
@@ -105,7 +132,7 @@ const saldoAtual = totalReceitas - totalDespesas;
           method: "DELETE",
         });
         buscarGastos();
-        setSaldo(saldoAtual);
+        
       } catch (error) {
         console.error("Erro ao deletar gasto:", error);
       }
@@ -163,7 +190,7 @@ const saldoAtual = totalReceitas - totalDespesas;
               <h2 className="text-2xl font-bold text-gray-800">Despesas do mês</h2>
             </div>
             <p className="text-3xl font-bold text-red-600">
-              {gastos.reduce((acc, gasto) => acc + Number(gasto.valor || 0), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              {totalDespesas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </p>
           </div>
 
@@ -173,10 +200,14 @@ const saldoAtual = totalReceitas - totalDespesas;
           <div className=" bg-white rounded-2xl p-6 shadow-md border border-slate-200">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-slate-900">Receitas vs Despesas</h2>
-              <select className="text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
-                <option>Últimos 6 meses</option>
-                <option>Últimos 12 meses</option>
-                <option>Este ano</option>
+              <select 
+                className="text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                value={periodoGrafico}
+                onChange={(e) => setPeriodoGrafico(e.target.value)}
+              >
+                <option value="6meses">Últimos 6 meses</option>
+                <option value="12meses">Últimos 12 meses</option>
+                <option value="ano">Este ano</option>
               </select>
             </div>
             <ResponsiveContainer width="100%" height={300}>

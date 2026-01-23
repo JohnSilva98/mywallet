@@ -45,17 +45,44 @@ const novaTransacao = () => {
   ];
 
   const handleSubmit = async () => {
-    console.log('Transação criada:', { ...formData, type: transactionType });
-    // Aqui você faria a chamada à API
-    await fetch('/api/gastos', {
+  
+try {
+    // 1. Tratamento do valor para virar número decimal puro
+    const valorNumerico = parseFloat(
+      formData.amount.replace(/\./g, '').replace(',', '.')
+    );
+
+    if (isNaN(valorNumerico) || !formData.description || !formData.category) {
+      alert("Por favor, preencha todos os campos corretamente.");
+      return;
+    }
+
+    // 2. Montagem do objeto conforme seu Schema Prisma
+    const corpoRequisicao = {
+      nome: formData.description,
+      valor: valorNumerico,
+      categoria: formData.category,
+      data: new Date(formData.date).toISOString(), // Garante formato de data ISO
+      tipo: transactionType
+    };
+
+    const response = await fetch('/api/gastos', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ...formData, type: transactionType }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(corpoRequisicao),
     });
-    router.push('/');
-  };
+
+    if (response.ok) {
+      // 3. Força o Next.js a limpar o cache e redireciona
+      router.refresh(); 
+      router.push('/');
+    } else {
+      console.error("Erro na resposta da API");
+    }
+  } catch (error) {
+    console.error("Erro ao enviar transação:", error);
+  }
+};
 
   const formatCurrencyInput = (value) => {
     const numbers = value.replace(/\D/g, '');
