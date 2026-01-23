@@ -10,6 +10,8 @@ import {
 
 export default function GraficoCategoria({ gastos }) {
   // Agrupar gastos por categoria e somar valores
+  console.log('gastos:', gastos, typeof gastos, Array.isArray(gastos));
+  
   const dadosPorCategoria = gastos.reduce((acc, gasto) => {
     const categoria = gasto.categoria;
     const valor = Number(gasto.valor);

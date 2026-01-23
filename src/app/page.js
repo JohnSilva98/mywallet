@@ -3,20 +3,29 @@ import { useState, useEffect } from "react";
 import FormGasto from "@/components/formGasto";
 import ListaGastos from "@/components/listaGasto";
 import GraficoCategoria from "@/components/graficoCategorias";
+import Header from "@/components/header";
 
 export default function Home() {
+  const [saldo, setSaldo] = useState(0);
   const [gastos, setGastos] = useState([]);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [gastoParaEditar, setGastoParaEditar] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const calcularSaldo = () => {
+    const totalGasto = gastos.reduce((acc, gasto) => acc + Number(gasto.valor || 0), 0);
+    const saldoFinal = saldo - totalGasto;
+    return saldoFinal;
+  };
+  
   // Buscar gastos ao carregar a página
   const buscarGastos = async () => {
     try {
       const response = await fetch("/api/gastos");
       const data = await response.json();
       setGastos(data);
-    } catch (error) {
+      } catch (error) {
+      console.error("ERRO PRISMA / DB:", error);
       console.error("Erro ao buscar gastos:", error);
     } finally {
       setLoading(false);
@@ -25,10 +34,12 @@ export default function Home() {
 
   useEffect(() => {
     buscarGastos();
+    calcularSaldo();
   }, []);
 
   const handleGastoAdicionado = () => {
     buscarGastos();
+    calcularSaldo();
     setMostrarForm(false);
     setGastoParaEditar(null);
   };
@@ -45,6 +56,7 @@ export default function Home() {
           method: "DELETE",
         });
         buscarGastos();
+        calcularSaldo();
       } catch (error) {
         console.error("Erro ao deletar gasto:", error);
       }
@@ -62,27 +74,17 @@ export default function Home() {
         <p className="text-xl">Carregando..</p>
       </div>
     );
-  }
+  }   
+    const saldoRestante = saldo - gastos.reduce((acc, gasto) => acc + Number(gasto.valor || 0), 0);
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">
-            Controle Financeiro
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Gerencie seus gastos de forma simples
-          </p>
-        </header>
+    
 
         {!mostrarForm && (
-          <button
-            onClick={() => setMostrarForm(true)}
-            className="mb-6 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 font-medium"
-          >
-            + Adicionar Novo Gasto
-          </button>
+          <Header onClick={() => setMostrarForm(true)} />
+
         )}
 
         <div className="space-y-6">
@@ -93,6 +95,14 @@ export default function Home() {
               onCancelar={handleCancelar}
             />
           )}
+
+          {/* card saldo */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-2xl font-bold text-gray-800">Saldo em conta</h2>
+            <p className={`text-3xl font-bold ${saldoRestante < 0 ? 'text-red-600' : 'text-green-600'}`}>
+              {saldoRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </p>
+          </div>
 
           <GraficoCategoria gastos={gastos} />
 
