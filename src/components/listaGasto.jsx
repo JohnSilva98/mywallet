@@ -48,9 +48,12 @@ export default function ListaGastos({ gastos, onEditar, onDeletar }) {
           Total:{" "}
           <span className="font-bold">{formatarValor(calcularTotal())}</span>
         </p>
-        <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+        <a 
+          href="/transacoes"
+          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+        >
           Ver todas
-        </button>
+        </a>
       </div>
 
       <div className="divide-y">
