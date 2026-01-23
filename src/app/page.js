@@ -254,6 +254,7 @@ const saldoAtual = totalReceitas - totalDespesas;
          
 
           {/* lista de gastos recentes */}
+          {/* teste */}
           <ListaGastos
             gastos={gastos}
             onEditar={handleEditar}
