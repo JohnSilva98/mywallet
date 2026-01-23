@@ -43,13 +43,13 @@ export default function ListaGastos({ gastos, onEditar, onDeletar }) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="p-6 text-black">
-        <h2 className="text-2xl font-bold">Seus Gastos Recentes</h2>
+        <h2 className="text-2xl font-bold">Suas transações recentes</h2>
         <p className="text-lg mt-2">
           Total:{" "}
           <span className="font-bold">{formatarValor(calcularTotal())}</span>
         </p>
         <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-          Ver tudo
+          Ver todas
         </button>
       </div>
 
