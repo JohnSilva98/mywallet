@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import FormGasto from "@/components/novaTransacao";
 import ListaGastos from "@/components/listaGasto";
 import GraficoCategoria from "@/components/graficoCategorias";
 import Header from "@/components/header";
