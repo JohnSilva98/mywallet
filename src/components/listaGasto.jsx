@@ -1,9 +1,25 @@
 "use client";
+import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 export default function ListaGastos({ gastos, onEditar, onDeletar }) {
   const formatarData = (data) => {
     return new Date(data).toLocaleDateString("pt-BR");
   };
+
+    const formatCurrency = (value) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
+
+   const recentTransactions = [
+    { id: 1, description: 'Salário', amount: 5800, type: 'receita', date: '22/01/2026', category: 'Salário' },
+    { id: 2, description: 'Supermercado', amount: -320, type: 'despesa', date: '21/01/2026', category: 'Alimentação' },
+    { id: 3, description: 'Netflix', amount: -45, type: 'despesa', date: '20/01/2026', category: 'Lazer' },
+    { id: 4, description: 'Freelance', amount: 1200, type: 'receita', date: '19/01/2026', category: 'Extra' },
+    { id: 5, description: 'Gasolina', amount: -180, type: 'despesa', date: '18/01/2026', category: 'Transporte' },
+  ];
 
   const formatarValor = (valor) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -29,53 +45,52 @@ export default function ListaGastos({ gastos, onEditar, onDeletar }) {
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="p-6 bg-blue-600 text-white">
-        <h2 className="text-2xl font-bold">Seus Gastos</h2>
+      <div className="p-6 text-black">
+        <h2 className="text-2xl font-bold">Seus Gastos Recentes</h2>
         <p className="text-lg mt-2">
           Total:{" "}
           <span className="font-bold">{formatarValor(calcularTotal())}</span>
         </p>
+        <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+          Ver todas
+        </button>
       </div>
 
       <div className="divide-y">
-        {gastos.map((gasto) => (
-          <div key={gasto.id} className="p-4 hover:bg-gray-50 transition">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg text-gray-800">
-                  {gasto.nome}
-                </h3>
-                <div className="flex gap-4 mt-1 text-sm text-gray-600">
-                  <span className="bg-gray-200 px-2 py-1 rounded">
-                    {gasto.categoria}
-                  </span>
-                  <span>{formatarData(gasto.data)}</span>
+        {recentTransactions.map((transaction) => (
+              <div 
+                key={transaction.id}
+                className="flex items-center justify-between p-4 rounded-xl hover:bg-slate-50 transition-colors border border-slate-100"
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    transaction.type === 'receita' 
+                      ? 'bg-green-100' 
+                      : 'bg-red-100'
+                  }`}>
+                    {transaction.type === 'receita' ? (
+                      <ArrowUpRight className="w-5 h-5 text-green-600" />
+                    ) : (
+                      <ArrowDownRight className="w-5 h-5 text-red-600" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-medium text-slate-900">{transaction.description}</p>
+                    <p className="text-sm text-slate-500">{transaction.category} • {transaction.date}</p>
+                  </div>
                 </div>
-              </div>
-
-              <div className="text-right">
-                <p className="text-xl font-bold text-red-600">
-                  {formatarValor(gasto.valor)}
+                <p className={`font-bold text-lg ${
+                  transaction.type === 'receita' 
+                    ? 'text-green-600' 
+                    : 'text-red-600'
+                }`}>
+                  {transaction.amount > 0 ? '+' : ''}{formatCurrency(Math.abs(transaction.amount))}
                 </p>
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => onEditar(gasto)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => onDeletar(gasto.id)}
-                    className="text-red-600 hover:text-red-800 text-sm font-medium"
-                  >
-                    Deletar
-                  </button>
-                </div>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
+       
       </div>
-    </div>
+    
   );
 }
