@@ -28,29 +28,26 @@ export async function GET(request, { params }) {
   }
 }
 
-// PUT - Atualizar um gasto
 export async function PUT(request, { params }) {
   try {
-    const { id } = await params; // ← Adiciona await aqui
+    const { id } = params;
     const body = await request.json();
-    const { nome, valor, categoria, data } = body;
+    const { nome, valor, categoria, data, tipo } = body;
 
-    const gasto = await prisma.gasto.update({
-      where: { id },
+    const atualizado = await prisma.gasto.update({
+      where: { id: parseInt(id) },
       data: {
         nome,
         valor: parseFloat(valor),
         categoria,
+        tipo,
         data: new Date(data),
       },
     });
 
-    return NextResponse.json(gasto);
+    return NextResponse.json(atualizado);
   } catch (error) {
-    return NextResponse.json(
-      { error: "Erro ao atualizar gasto" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erro ao atualizar" }, { status: 500 });
   }
 }
 

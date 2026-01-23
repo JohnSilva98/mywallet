@@ -18,23 +18,24 @@ export async function GET() {
   }
 }
 
-// POST - Criar novo gasto
+// POST - Criar novo registro (Receita ou Despesa)
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { nome, valor, categoria, data } = body;
+    const { nome, valor, categoria, data, tipo } = body; // Pegando o 'tipo' do formulário
 
-    const gasto = await prisma.gasto.create({
+    const registro = await prisma.gasto.create({
       data: {
         nome,
         valor: parseFloat(valor),
         categoria,
+        tipo, // Salva se é "receita" ou "despesa"
         data: new Date(data),
       },
     });
 
-    return NextResponse.json(gasto, { status: 201 });
+    return NextResponse.json(registro, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Erro ao criar gasto" }, { status: 500 });
+    return NextResponse.json({ error: "Erro ao criar registro" }, { status: 500 });
   }
 }

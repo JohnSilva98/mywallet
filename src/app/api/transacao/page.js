@@ -3,8 +3,10 @@
 import React, { useState } from 'react';
 import { ArrowLeft, DollarSign, Calendar, Tag, FileText, TrendingUp, TrendingDown, Wallet, CreditCard, Repeat, X } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const novaTransacao = () => {
+  const router = useRouter();
   const [transactionType, setTransactionType] = useState('despesa');
   const [formData, setFormData] = useState({
     description: '',
@@ -42,9 +44,17 @@ const novaTransacao = () => {
     { value: 'cartao', label: 'Cartão de Crédito', icon: '💳' }
   ];
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log('Transação criada:', { ...formData, type: transactionType });
     // Aqui você faria a chamada à API
+    await fetch('/api/gastos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ...formData, type: transactionType }),
+    });
+    router.push('/');
   };
 
   const formatCurrencyInput = (value) => {
@@ -213,7 +223,7 @@ const novaTransacao = () => {
           </div>
 
           {/* Data e Conta */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-black">
             {/* Data */}
             <div className="bg-white rounded-2xl p-6 shadow-md border border-slate-200">
               <label className="block text-sm font-medium text-slate-700 mb-3">
@@ -293,7 +303,7 @@ const novaTransacao = () => {
 
           {/* Botões de Ação */}
           <div className="flex gap-4">
-            <button
+            <button onClick={() => router.push('/')}
               type="button"
               className="flex-1 px-6 py-4 border-2 border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors"
             >

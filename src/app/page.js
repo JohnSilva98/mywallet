@@ -14,11 +14,18 @@ export default function Home() {
   const [gastoParaEditar, setGastoParaEditar] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const calcularSaldo = () => {
-    const totalGasto = gastos.reduce((acc, gasto) => acc + Number(gasto.valor || 0), 0);
-    const saldoFinal = saldo - totalGasto;
-    return saldoFinal;
-  };
+
+  const totalReceitas = gastos
+  .filter(item => item.tipo === 'receita')
+  .reduce((acc, item) => acc + Number(item.valor || 0), 0);
+
+const totalDespesas = gastos
+  .filter(item => item.tipo === 'despesa')
+  .reduce((acc, item) => acc + Number(item.valor || 0), 0);
+
+const saldoAtual = totalReceitas - totalDespesas;
+
+  
 
   // Dados de exemplo
   const monthlyData = [
@@ -76,12 +83,12 @@ export default function Home() {
 
   useEffect(() => {
     buscarGastos();
-    calcularSaldo();
+    setSaldo(saldoAtual);
   }, []);
 
   const handleGastoAdicionado = () => {
     buscarGastos();
-    calcularSaldo();
+    setSaldo(saldoAtual);
     setMostrarForm(false);
     setGastoParaEditar(null);
   };
@@ -98,7 +105,7 @@ export default function Home() {
           method: "DELETE",
         });
         buscarGastos();
-        calcularSaldo();
+        setSaldo(saldoAtual);
       } catch (error) {
         console.error("Erro ao deletar gasto:", error);
       }
@@ -117,7 +124,7 @@ export default function Home() {
       </div>
     );
   }   
-    const saldoRestante = saldo - gastos.reduce((acc, gasto) => acc + Number(gasto.valor || 0), 0);
+    
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -144,8 +151,8 @@ export default function Home() {
               <Wallet className="w-8 h-8 text-gray-600" />
               <h2 className="text-2xl font-bold text-gray-800">Saldo em conta</h2>
             </div>
-            <p className={`text-3xl font-bold ${saldoRestante < 0 ? 'text-red-600' : 'text-green-600'}`}>
-              {saldoRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            <p className={`text-3xl font-bold ${saldoAtual < 0 ? 'text-red-600' : 'text-green-600'}`}>
+              {saldoAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </p>
           </div>
 
