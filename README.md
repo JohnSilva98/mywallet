@@ -243,9 +243,9 @@ Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) par
   <tr>
     <td align="center">
       <a href="https://github.com/JohnSilva98">
-        <img src="https://github.com/JohnSilva98.png" width="100px;" alt="John Silva"/><br>
+        <img src="https://github.com/JohnSilva98.png" width="100px;" alt="Jonathan Silva"/><br>
         <sub>
-          <b>John Silva</b>
+          <b>Jonathan Silva</b>
         </sub>
       </a>
     </td>
@@ -267,6 +267,6 @@ Se este projeto te ajudou de alguma forma, considere dar uma ⭐️ no repositó
   
 **[⬆ Voltar ao topo](#-easynizze---controle-financeiro)**
 
-Desenvolvido com 💚 por [John Silva](https://github.com/JohnSilva98)
+Desenvolvido com 💚 por [Jonathan Silva](https://github.com/JohnSilva98)
 
 </div>
