@@ -11,7 +11,7 @@ const Header = ({onClick}) => {
         <Wallet className='text-white w-8 h-8'/>
         
       </div>
-      <h1 className="text-4xl font-bold text-gray-800 bg-gradient-to-br from-blue-500 to-purple-600 bg-clip-text text-transparent">Easynizze - controle financeiro</h1>
+      <h1 className="text-4xl font-bold text-gray-800 bg-gradient-to-br from-blue-500 to-purple-600 bg-clip-text text-transparent">Easynizze</h1>
       <Link href="/api/transacao">
         <button className='bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-ease-in-out duration-500 font-medium'>Nova transação</button>
       </Link>
