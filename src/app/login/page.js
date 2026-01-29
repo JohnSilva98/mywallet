@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { signIn, useSession } from 'next-auth/react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -11,18 +11,32 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-  const { login } = useAuth();
+  const { data: session } = useSession();
+
+  // Se já está logado, redirecionar
+  if (session) {
+    router.push('/');
+    return null;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    const result = await login(email, password);
-    
-    if (result.success) {
-      router.push('/');
-    } else {
-      setError(result.message);
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result.ok) {
+        router.push('/');
+      } else {
+        setError('Email ou senha incorretos');
+      }
+    } catch (error) {
+      setError('Erro ao fazer login');
     }
   };
 
@@ -133,7 +147,7 @@ export default function LoginPage() {
 
           {/* Login Social (Simplificado por enquanto) */}
           <div className="space-y-3">
-            <button
+            <button onClick={()=> signIn('google', { callbackUrl: '/' })}
               type="button"
               className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
