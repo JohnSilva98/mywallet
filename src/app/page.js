@@ -173,6 +173,15 @@ const saldoAtual = totalReceitas - totalDespesas;
           )}
 
           {/* card saldo */}
+          <div className="flex justify-between">
+            <h1 className="text-2xl font-bold text-gray-800">Bem vindo, {session?.user?.name}</h1>
+            <button
+              onClick={() => signOut()}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors cursor-pointer"
+            >
+              Sair
+            </button>
+          </div>
           <div className=" rounded-lg shadow p-6 bg-gray-50">
             <div className="flex items-center gap-2 ">
               <Wallet className="w-8 h-8 text-gray-600" />
