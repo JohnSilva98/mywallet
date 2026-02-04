@@ -3,44 +3,60 @@ import { useState, useEffect } from "react";
 import ListaGastos from "../components/listaGasto";
 import GraficoCategoria from "../components/graficoCategorias";
 import Header from "../components/header";
-import { Wallet, TrendingDown,TrendingUp, DollarSign, CreditCard } from "lucide-react";
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Wallet, TrendingDown, TrendingUp } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut, useSession } from "next-auth/react";
 
-
 export default function Home() {
-  const { data: session } = useSession();
-  const { status } = useSession();
-
-  if (status === "loading") {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <p className="text-xl">Carregando...</p>
-    </div>
-  );
-}
-
-
+  // ✅ 1. TODOS os hooks no início
+  const { data: session, status } = useSession();
   const [gastos, setGastos] = useState([]);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [gastoParaEditar, setGastoParaEditar] = useState(null);
   const [loading, setLoading] = useState(true);
   const [periodoGrafico, setPeriodoGrafico] = useState('6meses');
 
+  // ✅ 2. useEffect ANTES de qualquer if/return
+  useEffect(() => {
+    const buscarGastos = async () => {
+      try {
+        const response = await fetch("/api/gastos");
+        const data = await response.json();
+        setGastos(data);
+      } catch (error) {
+        console.error("ERRO PRISMA / DB:", error);
+        console.error("Erro ao buscar gastos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    if (session) {
+      buscarGastos();
+    }
+  }, [session]);
+
+  // ✅ 3. AGORA SIM pode usar if/return
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl">Carregando...</p>
+      </div>
+    );
+  }
+
+
+  // ✅ 4. Funções e cálculos DEPOIS dos returns condicionais
   const totalReceitas = gastos
-  .filter(item => item.tipo === 'receita')
-  .reduce((acc, item) => acc + Number(item.valor || 0), 0);
+    .filter(item => item.tipo === 'receita')
+    .reduce((acc, item) => acc + Number(item.valor || 0), 0);
 
-const totalDespesas = gastos
-  .filter(item => item.tipo === 'despesa')
-  .reduce((acc, item) => acc + Number(item.valor || 0), 0);
+  const totalDespesas = gastos
+    .filter(item => item.tipo === 'despesa')
+    .reduce((acc, item) => acc + Number(item.valor || 0), 0);
 
-const saldoAtual = totalReceitas - totalDespesas;
+  const saldoAtual = totalReceitas - totalDespesas;
 
-  
-
-  // Função para processar dados do gráfico por período
   const processarDadosGrafico = () => {
     const agora = new Date();
     let dataInicio;
@@ -59,12 +75,10 @@ const saldoAtual = totalReceitas - totalDespesas;
         dataInicio = new Date(agora.getFullYear(), agora.getMonth() - 6, 1);
     }
     
-    // Filtrar gastos por período
     const gastosFiltrados = gastos.filter(gasto => 
       new Date(gasto.data) >= dataInicio
     );
     
-    // Agrupar por mês
     const dadosPorMes = {};
     
     gastosFiltrados.forEach(gasto => {
@@ -87,17 +101,15 @@ const saldoAtual = totalReceitas - totalDespesas;
       }
     });
     
-    // Ordenar por data e converter para array
     return Object.values(dadosPorMes)
       .sort((a, b) => {
         const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         return meses.indexOf(a.mes) - meses.indexOf(b.mes);
       })
-      .slice(-6); // Últimos 6 meses para visualização
+      .slice(-6);
   };
   
   const monthlyData = processarDadosGrafico();
-
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -105,14 +117,13 @@ const saldoAtual = totalReceitas - totalDespesas;
       currency: 'BRL'
     }).format(value);
   };
-  
-  // Buscar gastos ao carregar a página
+
   const buscarGastos = async () => {
     try {
       const response = await fetch("/api/gastos");
       const data = await response.json();
       setGastos(data);
-      } catch (error) {
+    } catch (error) {
       console.error("ERRO PRISMA / DB:", error);
       console.error("Erro ao buscar gastos:", error);
     } finally {
@@ -120,14 +131,8 @@ const saldoAtual = totalReceitas - totalDespesas;
     }
   };
 
-  useEffect(() => {
-    buscarGastos();
-    
-  }, []);
-
   const handleGastoAdicionado = () => {
     buscarGastos();
-    
     setMostrarForm(false);
     setGastoParaEditar(null);
   };
@@ -144,7 +149,6 @@ const saldoAtual = totalReceitas - totalDespesas;
           method: "DELETE",
         });
         buscarGastos();
-        
       } catch (error) {
         console.error("Erro ao deletar gasto:", error);
       }
@@ -156,23 +160,11 @@ const saldoAtual = totalReceitas - totalDespesas;
     setGastoParaEditar(null);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl">Carregando..</p>
-      </div>
-    );
-  }   
-    
-
   return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="max-w-4xl mx-auto px-4">
-    
-
         {!mostrarForm && (
           <Header onClick={() => setMostrarForm(true)} />
-
         )}
 
         <div className="space-y-6">
@@ -194,8 +186,9 @@ const saldoAtual = totalReceitas - totalDespesas;
               Sair
             </button>
           </div>
-          <div className=" rounded-lg shadow p-6 bg-gray-50">
-            <div className="flex items-center gap-2 ">
+
+          <div className="rounded-lg shadow p-6 bg-gray-50">
+            <div className="flex items-center gap-2">
               <Wallet className="w-8 h-8 text-gray-600" />
               <h2 className="text-2xl font-bold text-gray-800">Saldo em conta</h2>
             </div>
@@ -205,8 +198,8 @@ const saldoAtual = totalReceitas - totalDespesas;
           </div>
 
           {/* card despesas */}
-          <div className=" rounded-lg shadow p-6 bg-gray-50">
-            <div className="flex items-center gap-2 ">
+          <div className="rounded-lg shadow p-6 bg-gray-50">
+            <div className="flex items-center gap-2">
               <TrendingDown className="w-10 h-10 text-red-600 bg-red-100 p-2 rounded-lg" />
               <h2 className="text-2xl font-bold text-gray-800">Despesas do mês</h2>
             </div>
@@ -216,66 +209,58 @@ const saldoAtual = totalReceitas - totalDespesas;
           </div>
 
           {/* receitas vs despesas */}
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Line Chart */}
-          <div className=" bg-white rounded-2xl p-6 shadow-md border border-slate-200">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-slate-900">Receitas vs Despesas</h2>
-              <select 
-                className="text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-                value={periodoGrafico}
-                onChange={(e) => setPeriodoGrafico(e.target.value)}
-              >
-                <option value="6meses">Últimos 6 meses</option>
-                <option value="12meses">Últimos 12 meses</option>
-                <option value="ano">Este ano</option>
-              </select>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="bg-white rounded-2xl p-6 shadow-md border border-slate-200">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold text-slate-900">Receitas vs Despesas</h2>
+                <select 
+                  className="text-sm border border-slate-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                  value={periodoGrafico}
+                  onChange={(e) => setPeriodoGrafico(e.target.value)}
+                >
+                  <option value="6meses">Últimos 6 meses</option>
+                  <option value="12meses">Últimos 12 meses</option>
+                  <option value="ano">Este ano</option>
+                </select>
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="mes" stroke="#64748b" />
+                  <YAxis stroke="#64748b" />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'white', 
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      padding: '12px'
+                    }}
+                    formatter={(value) => formatCurrency(value)} 
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="receitas" 
+                    stroke="#10b981" 
+                    strokeWidth={3}
+                    dot={{ fill: '#10b981', r: 4 }}
+                    name="Receitas"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="despesas" 
+                    stroke="#ef4444" 
+                    strokeWidth={3}
+                    dot={{ fill: '#ef4444', r: 4 }}
+                    name="Despesas"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyData}> {/* recebe os dados de um array/api */}
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="mes" stroke="#64748b" /> {/* eixo horizontal */}
-                <YAxis stroke="#64748b" /> {/* eixo vertical */}
-                <Tooltip 
-                  contentStyle={{ /* css do grafico */
-                    backgroundColor: 'white', 
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    padding: '12px'
-                  }}
-                  formatter={(value) => formatCurrency(value)} 
-                />
-                <Legend />
-                {/*  linha de receitas */}
-                <Line 
-                  type="monotone" 
-                  dataKey="receitas" 
-                  stroke="#10b981" 
-                  strokeWidth={3}
-                  dot={{ fill: '#10b981', r: 4 }}
-                  name="Receitas"
-                />
-                {/* linha de despesas */}
-                <Line 
-                  type="monotone" 
-                  dataKey="despesas" 
-                  stroke="#ef4444" 
-                  strokeWidth={3}
-                  dot={{ fill: '#ef4444', r: 4 }}
-                  name="Despesas"
-                />
-              </LineChart>
-            </ResponsiveContainer>
             
+            <GraficoCategoria gastos={gastos} />
           </div>
-           {/* grafico despesas por categoria */}
-          <GraficoCategoria gastos={gastos} />
-        </div>
 
-         
-
-          {/* lista de gastos recentes */}
-          {/* teste */}
           <ListaGastos
             gastos={gastos}
             onEditar={handleEditar}
