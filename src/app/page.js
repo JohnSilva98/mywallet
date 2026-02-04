@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import ListaGastos from "@/components/listaGasto";
-import GraficoCategoria from "@/components/graficoCategorias";
-import Header from "@/components/header";
+import ListaGastos from "../components/listaGasto";
+import GraficoCategoria from "../components/graficoCategorias";
+import Header from "../components/header";
 import { Wallet, TrendingDown,TrendingUp, DollarSign, CreditCard } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut, useSession } from "next-auth/react";
@@ -10,6 +10,15 @@ import { signOut, useSession } from "next-auth/react";
 
 export default function Home() {
   const { data: session } = useSession();
+
+  if (status === "loading") {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-xl">Carregando...</p>
+    </div>
+  );
+}
+
 
   const [gastos, setGastos] = useState([]);
   const [mostrarForm, setMostrarForm] = useState(false);
@@ -178,7 +187,7 @@ const saldoAtual = totalReceitas - totalDespesas;
           <div className="flex justify-between">
             <h1 className="text-2xl font-bold text-gray-800">Bem vindo, {session?.user?.name}</h1>
             <button
-              onClick={() => signOut()}
+              onClick={() => signOut({callbackUrl: '/login'})}
               className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors cursor-pointer"
             >
               Sair
