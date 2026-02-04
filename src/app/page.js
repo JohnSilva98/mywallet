@@ -5,10 +5,12 @@ import GraficoCategoria from "@/components/graficoCategorias";
 import Header from "@/components/header";
 import { Wallet, TrendingDown,TrendingUp, DollarSign, CreditCard } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { signOut, useSession } from "next-auth/react";
 
 
 export default function Home() {
-  
+  const { data: session } = useSession();
+
   const [gastos, setGastos] = useState([]);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [gastoParaEditar, setGastoParaEditar] = useState(null);
