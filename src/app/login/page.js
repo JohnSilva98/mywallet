@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { signIn, useSession } from 'next-auth/react';
 
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,6 +13,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const router = useRouter();
   const { data: session } = useSession();
+
+
 
   // Se já está logado, redirecionar
   if (session) {
@@ -165,7 +168,7 @@ export default function LoginPage() {
           <div className="text-center pt-6 border-t border-gray-200">
             <p className="text-sm text-gray-600">
               Ainda não tem uma conta?{' '}
-              <a href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+              <a href="/api/register" className="font-medium text-blue-600 hover:text-blue-500">
                 Cadastre-se
               </a>
             </p>
