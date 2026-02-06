@@ -16,21 +16,34 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [periodoGrafico, setPeriodoGrafico] = useState('6meses');
 
+  const buscarGastos = async () => {
+    try {
+      const response = await fetch("/api/gastos");
+      
+      if (!response.ok) {
+        console.error("Erro na API:", response.status);
+        setGastos([]);
+        return;
+      }
+      
+      const data = await response.json();
+      
+      // Verificar se data é um array, caso contrário usar array vazio
+      if (Array.isArray(data)) {
+        setGastos(data);
+      } else {
+        console.error("API não retornou um array:", data);
+        setGastos([]);
+      }
+    } catch (error) {
+      console.error("ERRO PRISMA / DB:", error);
+      console.error("Erro ao buscar gastos:", error);
+      setGastos([]); // Garantir que gastos seja sempre um array
+    }
+  };
+
   // ✅ 2. useEffect ANTES de qualquer if/return
   useEffect(() => {
-    const buscarGastos = async () => {
-      try {
-        const response = await fetch("/api/gastos");
-        const data = await response.json();
-        setGastos(data);
-      } catch (error) {
-        console.error("ERRO PRISMA / DB:", error);
-        console.error("Erro ao buscar gastos:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (session) {
       buscarGastos();
     }
@@ -118,18 +131,7 @@ export default function Home() {
     }).format(value);
   };
 
-  const buscarGastos = async () => {
-    try {
-      const response = await fetch("/api/gastos");
-      const data = await response.json();
-      setGastos(data);
-    } catch (error) {
-      console.error("ERRO PRISMA / DB:", error);
-      console.error("Erro ao buscar gastos:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+ 
 
   const handleGastoAdicionado = () => {
     buscarGastos();

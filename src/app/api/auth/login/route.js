@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
 
-// TODO: Implementar lógica real de autenticação com banco de dados
-const USERS_MOCK = [
-  {
-    id: '1',
-    email: 'usuario@easynizze.com',
-    password: '123456', // Em produção, use hash!
-    name: 'Usuário Teste'
-  }
-];
+const prisma = new PrismaClient();
 
 export async function POST(request) {
   try {
@@ -22,8 +15,10 @@ export async function POST(request) {
       );
     }
 
-    // Buscar usuário (mock - substituir com Prisma)
-    const user = USERS_MOCK.find(u => u.email === email);
+    // Buscar usuário no banco de dados
+    const user = await prisma.user.findUnique({
+      where: { email }
+    });
 
     if (!user || user.password !== password) {
       return NextResponse.json(

@@ -3,10 +3,30 @@ import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
 
-// GET - Listar todos os gastos
-export async function GET() {
+// Helper function para obter usuário autenticado
+async function getUserFromRequest(request) {
+  const token = request.cookies.get('auth-token')?.value;
+  if (!token) return null;
+  
+  // Extrair userId do token (mock-token-{userId})
+  const userId = token.replace('mock-token-', '');
+  return userId;
+}
+
+// GET - Listar gastos do usuário logado
+export async function GET(request) {
   try {
+    const userId = await getUserFromRequest(request);
+    
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Usuário não autenticado" },
+        { status: 401 }
+      );
+    }
+
     const gastos = await prisma.gasto.findMany({
+      where: { userId },
       orderBy: { data: "desc" },
     });
     return NextResponse.json(gastos);
@@ -18,19 +38,29 @@ export async function GET() {
   }
 }
 
-// POST - Criar novo registro (Receita ou Despesa)
+// POST - Criar novo registro (Receita ou Despesa) para o usuário logado
 export async function POST(request) {
   try {
+    const userId = await getUserFromRequest(request);
+    
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Usuário não autenticado" },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
-    const { nome, valor, categoria, data, tipo } = body; // Pegando o 'tipo' do formulário
+    const { nome, valor, categoria, data, tipo } = body;
 
     const registro = await prisma.gasto.create({
       data: {
         nome,
         valor: parseFloat(valor),
         categoria,
-        tipo, // Salva se é "receita" ou "despesa"
+        tipo,
         data: new Date(data),
+        userId, // Associar ao usuário logado
       },
     });
 
