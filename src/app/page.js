@@ -191,11 +191,11 @@ export default function Home() {
           )}
 
           {/* card saldo */}
-          <div className="flex justify-between">
-            <h1 className="text-2xl font-bold text-gray-800">Bem vindo, {session?.user?.name}</h1>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Bem vindo, {session?.user?.name}</h1>
             <button
               onClick={() => signOut({callbackUrl: '/login'})}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors cursor-pointer text-sm sm:text-base whitespace-nowrap"
             >
               Sair
             </button>
