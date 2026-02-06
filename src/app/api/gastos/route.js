@@ -1,22 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 const prisma = new PrismaClient();
 
-// Helper function para obter usuário autenticado
-async function getUserFromRequest(request) {
-  const token = request.cookies.get('auth-token')?.value;
-  if (!token) return null;
-  
-  // Extrair userId do token (mock-token-{userId})
-  const userId = token.replace('mock-token-', '');
-  return userId;
+// Helper function para obter usuário autenticado via NextAuth
+async function getUserFromSession() {
+  const session = await getServerSession(authOptions);
+  return session?.user?.id;
 }
 
 // GET - Listar gastos do usuário logado
-export async function GET(request) {
+export async function GET() {
   try {
-    const userId = await getUserFromRequest(request);
+    const userId = await getUserFromSession();
     
     if (!userId) {
       return NextResponse.json(
@@ -41,7 +39,7 @@ export async function GET(request) {
 // POST - Criar novo registro (Receita ou Despesa) para o usuário logado
 export async function POST(request) {
   try {
-    const userId = await getUserFromRequest(request);
+    const userId = await getUserFromSession();
     
     if (!userId) {
       return NextResponse.json(
