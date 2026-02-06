@@ -54,14 +54,14 @@ export default function Home() {
     }
   };
 
-  // ✅ 2. useEffect ANTES de qualquer if/return
+  // ✅ 3. Buscar gastos apenas quando estiver autenticado
   useEffect(() => {
     if (session) {
       buscarGastos();
     }
   }, [session]);
 
-  // ✅ 3. AGORA SIM pode usar if/return
+  // ✅ 4. AGORA SIM pode usar if/return
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -70,8 +70,7 @@ export default function Home() {
     );
   }
 
-
-  // ✅ 4. Funções e cálculos DEPOIS dos returns condicionais
+  // ✅ 5. Funções e cálculos DEPOIS dos returns condicionais
   const totalReceitas = gastos
     .filter(item => item.tipo === 'receita')
     .reduce((acc, item) => acc + Number(item.valor || 0), 0);
@@ -142,8 +141,6 @@ export default function Home() {
       currency: 'BRL'
     }).format(value);
   };
-
- 
 
   const handleGastoAdicionado = () => {
     buscarGastos();
