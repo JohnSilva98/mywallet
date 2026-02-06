@@ -132,7 +132,7 @@ export default function LoginPage() {
 
             {/* Link Esqueci Senha */}
             <div className="text-center">
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-500">
+              <a href="/esqueceu-senha" className="text-sm text-blue-600 hover:text-blue-500">
                 Esqueceu sua senha?
               </a>
             </div>
