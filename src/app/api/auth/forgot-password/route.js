@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
+import { sendPasswordResetEmail } from '../../../../lib/email';
 
 const prisma = new PrismaClient();
 
@@ -51,16 +52,14 @@ export async function POST(request) {
       }
     });
 
-    // TODO: Enviar email de verdade
-    // Por enquanto, vamos apenas logar o token (em produção, usar serviço de email)
-    console.log('=== TOKEN DE RECUPERAÇÃO DE SENHA ===');
-    console.log(`Email: ${email}`);
-    console.log(`Token: ${resetToken}`);
-    console.log(`Link: ${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/resetar-senha?token=${resetToken}`);
-    console.log('=====================================');
+    // Enviar email de recuperação
+    const emailResult = await sendPasswordResetEmail(email, resetToken);
 
-    // Simular envio de email
-    // Em produção, você usaria nodemailer, SendGrid, AWS SES, etc.
+    if (!emailResult.success) {
+      console.error('Erro ao enviar email:', emailResult.error);
+      // Em produção, você pode querer tratar este erro de forma diferente
+      // Por enquanto, vamos continuar mesmo se o email falhar
+    }
 
     return NextResponse.json(
       { message: 'Email de recuperação enviado com sucesso' },
